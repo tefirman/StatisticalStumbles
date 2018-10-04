@@ -132,21 +132,30 @@ plt.xticks(np.arange(0,101,25))
 plt.yticks(np.arange(0,12.1,4))
 plt.xlabel('Win %',fontsize=textSize,fontweight='bold')
 plt.ylabel('Probability of Occurence',fontsize=textSize,fontweight='bold')
-plt.legend(['1919-2017','Actual','Pythagorean'])
+plt.legend(['1919-2018','Actual','Pythagorean'])
+plt.tight_layout()
 plt.savefig('WinPctHist.pdf')
 #plt.close()
 
 plt.figure(figsize=(6,5))
-plt.plot(100*winPctInds,100*playoffHist,linewidth=lineSize)
-plt.plot(100*winPctInds[ind2plot_Win],100*playoffHist[ind2plot_Win],'*g',markersize=markerSize)
-plt.plot(100*winPctInds[ind2plot_Pythag],100*playoffHist[ind2plot_Pythag],'*r',markersize=markerSize)
+#plt.plot(100*winPctInds,100*playoffHist,linewidth=lineSize)
+#plt.plot(100*winPctInds[ind2plot_Win],100*playoffHist[ind2plot_Win],'*g',markersize=markerSize)
+#plt.plot(100*winPctInds[ind2plot_Pythag],100*playoffHist[ind2plot_Pythag],'*r',markersize=markerSize)
+twoWC = pd.read_csv('TwoWC_Curve.csv')
+plt.plot(twoWC.Wins,100*twoWC.Probability,linewidth=lineSize)
+plt.plot(mariners_2018['W'],100*twoWC.loc[twoWC.Wins == mariners_2018['W'],'Probability'],'*g',markersize=markerSize)
+plt.plot(mariners_2018['Pythag_Wins'],100*twoWC.loc[twoWC.Wins == mariners_2018['Pythag_Wins'],'Probability'],'*r',markersize=markerSize)
 plt.grid(True)
-plt.axis([30,70,0,75])
-plt.xticks(np.arange(30,71,10))
-plt.yticks(np.arange(0,61,20))
-plt.xlabel('Win %',fontsize=textSize,fontweight='bold')
+#plt.axis([30,70,0,75])
+#plt.xticks(np.arange(30,71,10))
+#plt.yticks(np.arange(0,61,20))
+plt.axis([70,100,-5,105])
+plt.xticks(np.arange(70,101,10))
+plt.yticks(np.arange(0,101,25))
+plt.xlabel('Wins',fontsize=textSize,fontweight='bold')
 plt.ylabel('Playoff Probability',fontsize=textSize,fontweight='bold')
-plt.legend(['1919-2017','Actual','Pythagorean'])
+plt.legend(['Prediction','Actual','Pythagorean'])
+plt.tight_layout()
 plt.savefig('PlayoffProbHist.pdf')
 #plt.close()
 
@@ -175,7 +184,9 @@ plt.yticks(np.arange(30,71,10))
 plt.colorbar(ticks=np.arange(5.1))
 plt.xlabel('Pythagorean Win %',fontsize=textSize,fontweight='bold')
 plt.ylabel('Actual Win %',fontsize=textSize,fontweight='bold')
-plt.title('Probability of Occurence')
+plt.title('Probability of Occurence, 1919-2018',fontweight='bold')
+plt.legend(["2018 M's"],loc=2)
+plt.tight_layout()
 plt.savefig('RealVsPythagHeatMap.pdf')
 #plt.close()
 
@@ -197,7 +208,8 @@ plt.xticks(np.arange(-10,10.1,5))
 plt.yticks(np.arange(0,15.1,5))
 plt.xlabel('Actual Win % - Pythagorean Win %',fontsize=textSize,fontweight='bold')
 plt.ylabel('Probability',fontsize=textSize,fontweight='bold')
-plt.legend(['1919-2017',"2018 M's"])
+plt.legend(['1919-2018',"2018 M's"])
+plt.tight_layout()
 plt.savefig('PythagDiffHist.pdf')
 #plt.close()
 
@@ -236,7 +248,8 @@ plt.grid(True)
 plt.xlabel('Year')
 plt.ylabel('Win % St. Dev.')
 plt.legend(['AL','NL'])
-plt.title('Highest St. Dev. Since ' + str(max(years[np.array(stDevs_AL) > stDevs_AL[-1]][-1],years[np.array(stDevs_NL) > stDevs_AL[-1]][-1])))
+plt.title('Highest St. Dev. Since ' + str(max(years[np.array(stDevs_AL) > stDevs_AL[-1]][-1],years[np.array(stDevs_NL) > stDevs_AL[-1]][-1])),fontweight='bold')
+plt.tight_layout()
 plt.savefig('WinPctStDevsOverTime.pdf')
 #plt.close()
 
@@ -247,7 +260,8 @@ plt.grid(True)
 plt.xlabel('Year')
 plt.ylabel('Win % Range')
 plt.legend(['AL','NL'])
-plt.title('Highest Range Since ' + str(max(years[np.array(range_AL) > range_AL[-1]][-1],years[np.array(range_NL) > range_AL[-1]][-1])))
+plt.title('Highest Range Since ' + str(max(years[np.array(range_AL) > range_AL[-1]][-1],years[np.array(range_NL) > range_AL[-1]][-1])),fontweight='bold')
+plt.tight_layout()
 plt.savefig('WinPctRangesOverTime.pdf')
 #plt.close()
 
@@ -259,6 +273,7 @@ since1998.loc[since1998.Team == 'MON','Team'] = 'WAS'
 oneWC = pd.read_csv('OneWC_Curve.csv')
 twoWC = pd.read_csv('TwoWC_Curve.csv')
 for year in range(1998,2019):
+    print(year)
     for team in since1998.Team.unique():
         if year < 2012:
             since1998.loc[np.all([since1998.Year == year,since1998.Team == team],axis=0),'Playoffs_Exp'] = \
@@ -268,7 +283,7 @@ for year in range(1998,2019):
         else:
             since1998.loc[np.all([since1998.Year == year,since1998.Team == team],axis=0),'Playoffs_Exp'] = \
             twoWC.loc[twoWC.Wins == since1998.loc[np.all([since1998.Year == year,since1998.Team == team],axis=0),'W'].tolist()[0],'Probability'].tolist()[0]
-            since1998.loc[np.all([since1998.Year == year,since1998.Team == team],axis=0),'Playoffs_Exp'] = \
+            since1998.loc[np.all([since1998.Year == year,since1998.Team == team],axis=0),'Playoffs_Exp_Pythag'] = \
             twoWC.loc[twoWC.Wins == since1998.loc[np.all([since1998.Year == year,since1998.Team == team],axis=0),'Pythag_Wins'].tolist()[0],'Probability'].tolist()[0]
     del team
 del year
@@ -282,5 +297,17 @@ playoffs['Difference'] = playoffs['Expected'] - playoffs['Actual']
 playoffs['Difference_Pythag'] = playoffs['Expected_Pythag'] - playoffs['Actual']
 playoffs = playoffs.sort_values(by=['Difference'],ascending=False)
 #playoffs = playoffs.sort_values(by=['Difference_Pythag'],ascending=False)
+playoffs.to_csv('Playoffs_ExpectedVsActual.csv')
+
+#translation = {'SEA':'Seattle Mariners','WAS':'Washington Nationals','BOS':'Boston Red Sox',\
+#'SFN':'San Francisco Giants','TOR':'Toronto Blue Jays','CHA':'Chicago White Sox',\
+#'ANA':'Los Angeles Angels','TBA':'Tampa Bay Rays','CIN':'Cincinnati Reds',\
+#'OAK':'Oakland Athletics','CLE':'Cleveland Indians','NYN':'New York Mets',\
+#'ARI':'Arizona Diamondbacks','MIA':'Miami Marlins','MIL':'Milwaukee Brewers',\
+#'PHI':'Philadelphia Phillies','SDN':'San Diego Padres','HOU':'Houston Astros',\
+#'KCA':'Kansas City Royals','DET':'Detroit Tigers','SLN':'St. Louis Cardinals',\
+#'PIT':'Pittsburgh Pirates','NYA':'New York Yankees','ATL':'Atlanta Braves',\
+#'LAN':'Los Angeles Dodgers','BAL':'Baltimore Orioles','CHN':'Chicago Cubs',\
+#'TEX':'Texas Rangers','COL':'Colorado Rockies','MIN':'Minnesota Twins'}
 
 
