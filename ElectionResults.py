@@ -283,28 +283,28 @@ for year in range(2000,2017,2):
         byDistrict.loc[(byDistrict.Year == 2010) & (byDistrict.State == 'MA'),'Votes_Senate_R_Cumulative'] += 1168178 - 661532
         byDistrict.loc[(byDistrict.Year == 2010) & (byDistrict.State == 'MA'),'Votes_Senate_O_Cumulative'] += 24688 - 3220
     
-    actual_S = pd.read_csv('ElectionResults/NetResults_Senate.csv')
-    actual_H = pd.read_csv('ElectionResults/NetResults_House.csv')
-    print('Wiki Senate Republican Wins: ' + str(actual_S.loc[actual_S.Year == year,'Republicans_Elected'].tolist()[0]))
-    print('FEC Senate Republican Wins: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_R.mean().sum())))
-    print('Wiki Senate Democrat Wins: ' + str(actual_S.loc[actual_S.Year == year,'Democrats_Elected'].tolist()[0]))
-    print('FEC Senate Democrat Wins: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_D.mean().sum())))
-    print('Wiki Senate Independent Wins: ' + str(actual_S.loc[actual_S.Year == year,'Other_Elected'].tolist()[0]))
-    print('FEC Senate Independent Wins: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_O.mean().sum())))
-    print('Wiki Senate Republicans: ' + str(actual_S.loc[actual_S.Year == year,'Republicans_Total'].tolist()[0]))
-    print('FEC Senate Republicans: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_R_Cumulative.mean().sum())))
-    print('Wiki Senate Democrats: ' + str(actual_S.loc[actual_S.Year == year,'Democrats_Total'].tolist()[0]))
-    print('FEC Senate Democrats: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_D_Cumulative.mean().sum())))
-    print('Wiki Senate Independents: ' + str(actual_S.loc[actual_S.Year == year,'Other_Total'].tolist()[0]))
-    print('FEC Senate Independents: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_O_Cumulative.mean().sum())))
-    print('Wiki House Republicans: ' + str(actual_H.loc[actual_H.Year == year,'Republicans'].tolist()[0]))
-    print('FEC House Republicans: ' + str(int(byDistrict.loc[byDistrict.Year == year,'Wins_House_R'].sum())))
-    print('Wiki House Democrats: ' + str(actual_H.loc[actual_H.Year == year,'Democrats'].tolist()[0]))
-    print('FEC House Democrats: ' + str(int(byDistrict.loc[byDistrict.Year == year,'Wins_House_D'].sum())))
-    print('Wiki House Independents: ' + str(actual_H.loc[actual_H.Year == year,'Other'].tolist()[0]))
-    print('FEC House Independents: ' + str(int(byDistrict.loc[byDistrict.Year == year,'Wins_House_O'].sum())))
-    del actual_S
-    del actual_H
+#    actual_S = pd.read_csv('ElectionResults/NetResults_Senate.csv')
+#    actual_H = pd.read_csv('ElectionResults/NetResults_House.csv')
+#    print('Wiki Senate Republican Wins: ' + str(actual_S.loc[actual_S.Year == year,'Republicans_Elected'].tolist()[0]))
+#    print('FEC Senate Republican Wins: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_R.mean().sum())))
+#    print('Wiki Senate Democrat Wins: ' + str(actual_S.loc[actual_S.Year == year,'Democrats_Elected'].tolist()[0]))
+#    print('FEC Senate Democrat Wins: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_D.mean().sum())))
+#    print('Wiki Senate Independent Wins: ' + str(actual_S.loc[actual_S.Year == year,'Other_Elected'].tolist()[0]))
+#    print('FEC Senate Independent Wins: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_O.mean().sum())))
+#    print('Wiki Senate Republicans: ' + str(actual_S.loc[actual_S.Year == year,'Republicans_Total'].tolist()[0]))
+#    print('FEC Senate Republicans: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_R_Cumulative.mean().sum())))
+#    print('Wiki Senate Democrats: ' + str(actual_S.loc[actual_S.Year == year,'Democrats_Total'].tolist()[0]))
+#    print('FEC Senate Democrats: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_D_Cumulative.mean().sum())))
+#    print('Wiki Senate Independents: ' + str(actual_S.loc[actual_S.Year == year,'Other_Total'].tolist()[0]))
+#    print('FEC Senate Independents: ' + str(int(byDistrict.loc[byDistrict.Year == year].groupby('State').Wins_Senate_O_Cumulative.mean().sum())))
+#    print('Wiki House Republicans: ' + str(actual_H.loc[actual_H.Year == year,'Republicans'].tolist()[0]))
+#    print('FEC House Republicans: ' + str(int(byDistrict.loc[byDistrict.Year == year,'Wins_House_R'].sum())))
+#    print('Wiki House Democrats: ' + str(actual_H.loc[actual_H.Year == year,'Democrats'].tolist()[0]))
+#    print('FEC House Democrats: ' + str(int(byDistrict.loc[byDistrict.Year == year,'Wins_House_D'].sum())))
+#    print('Wiki House Independents: ' + str(actual_H.loc[actual_H.Year == year,'Other'].tolist()[0]))
+#    print('FEC House Independents: ' + str(int(byDistrict.loc[byDistrict.Year == year,'Wins_House_O'].sum())))
+#    del actual_S
+#    del actual_H
     
     del results_S
     del results_H
@@ -359,51 +359,6 @@ byDistrict['Power_Total'] = byDistrict.Power_Senate*4.35 + byDistrict.Power_Hous
 byDistrict = byDistrict.sort_values(by=['State','District','Year'])
 byDistrict[['State','District','Year','Cluster','Power_House','Power_Senate','Power_Total']]\
 .to_csv('ElectionResults/OverallResults_ByYearAndDistrict.csv',index=False)
-
-""" SCATTER PLOT WITH POWER BY DISTRICT!!! """
-""" Color code by urban/suburban/rural or representative party??? """
-""" Check both and see which one is cooler... """
-""" Histogram might be more illustrative... Not really... """
-
-#plt.figure()
-#plt.plot(byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Cluster == 'Rural'),'Power_House'],\
-#byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Cluster == 'Rural'),'Power_Senate'],'.')
-#plt.plot(byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Cluster == 'Suburban'),'Power_House'],\
-#byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Cluster == 'Suburban'),'Power_Senate'],'.')
-#plt.plot(byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Cluster == 'Urban'),'Power_House'],\
-#byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Cluster == 'Urban'),'Power_Senate'],'.')
-#plt.grid(True)
-#plt.xlabel('House Power')
-#plt.ylabel('Senate Power')
-
-#ruralProb,inds = np.histogram(byDistrict.loc[(byDistrict.Year == 2016) & \
-#(byDistrict.Cluster == 'Rural') & (~byDistrict.Power_Total.isnull()),'Power_Total'],np.arange(41))
-#suburbanProb,inds = np.histogram(byDistrict.loc[(byDistrict.Year == 2016) & \
-#(byDistrict.Cluster == 'Suburban') & (~byDistrict.Power_Total.isnull()),'Power_Total'],np.arange(41))
-#urbanProb,inds = np.histogram(byDistrict.loc[(byDistrict.Year == 2016) & \
-#(byDistrict.Cluster == 'Urban') & (~byDistrict.Power_Total.isnull()),'Power_Total'],np.arange(41))
-#ruralProb = ruralProb/np.sum(ruralProb)
-#suburbanProb = suburbanProb/np.sum(suburbanProb)
-#urbanProb = urbanProb/np.sum(urbanProb)
-#plt.figure()
-#plt.plot(inds[:-1],100*ruralProb,inds[:-1],100*suburbanProb,inds[:-1],100*urbanProb)
-#plt.grid(True)
-#plt.xlabel('Total Power')
-#plt.ylabel('Percentage')
-#plt.legend(['Rural','Suburban','Urban'])
-
-#plt.figure()
-#plt.plot(byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Wins_House_D == 1),'Power_House'],\
-#byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Wins_House_D == 1),'Power_Senate'],'.b')
-#plt.plot(byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Wins_House_R == 1),'Power_House'],\
-#byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Wins_House_R == 1),'Power_Senate'],'.r')
-#plt.plot(byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Wins_House_O == 1),'Power_House'],\
-#byDistrict.loc[(byDistrict.Year == 2016) & (byDistrict.Wins_House_O == 1),'Power_Senate'],'.g')
-#plt.grid(True)
-#plt.xlabel('House Power')
-#plt.ylabel('Senate Power')
-
-
 
 byState = byDistrict.groupby(by=['State','Year']).agg({'Votes_House_R':'sum',\
 'Votes_House_D':'sum','Votes_House_O':'sum','Votes_House_Total':'sum',\
@@ -829,7 +784,91 @@ rollCall = pd.merge(left=rollCall,right=byState.loc[byState.Year == 2016,\
 kavanaughVotes = rollCall.groupby('Vote').Votes_Senate_Total_Cumulative.sum()/4
 del rollCall
 
+import geopandas as gpd
 
+fipsCodes = pd.read_csv('FIPS_Codes.csv')
+districtShapes = gpd.read_file('tl_2017_us_cd115/tl_2017_us_cd115.shp')
+districtShapes = districtShapes.to_crs({'init': 'epsg:2163'}) # US National Atlas Equal Area
+districtShapes.STATEFP = districtShapes.STATEFP.astype(int)
+districtShapes = pd.merge(left=districtShapes,right=fipsCodes,how='left',left_on='STATEFP',right_on='FIPS_Code')
+districtShapes = districtShapes.loc[~districtShapes.State.str.contains('Virgin Island')]
+districtShapes = districtShapes.loc[~districtShapes.State.str.contains('Northern Mariana')]
+districtShapes = districtShapes.loc[~districtShapes.State.isin(['District of Columbia','Guam','Puerto Rico','American Samoa'])]
+districtShapes = districtShapes.loc[districtShapes['CD115FP'] != 'ZZ']
+districtShapes.CD115FP = districtShapes.CD115FP.astype(float)
+districtShapes = pd.merge(left=districtShapes,right=byDistrict.loc[byDistrict.Year == 2016,['State','District','Power_House','Power_Senate','Power_Total']],\
+how='left',left_on=['Abbreviation','CD115FP'],right_on=['State','District'])
+districtShapes.loc[districtShapes.Power_House.isnull(),'Power_House'] = districtShapes['Power_House'].min()
+districtShapes.loc[districtShapes.Power_Total.isnull(),'Power_Total'] = districtShapes['Power_Total'].min()
+
+fig,ax = plt.subplots(1,figsize=(18,10))
+districtShapes.loc[~districtShapes.Abbreviation.isin(['AK','HI'])].plot(ax=ax,\
+column='Power_House',cmap='Blues',vmin=2,vmax=5,edgecolor='black')
+ax.set_axis_off()
+ax.set_title('Representative Power in the House\n115th Congress',fontsize=28,fontweight='bold')
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(2,5.1))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/HousePowerMap.png',dpi=500)
+fig,ax = plt.subplots(1,figsize=(8,8))
+districtShapes.loc[districtShapes.Abbreviation == 'AK'].plot(ax=ax,\
+column='Power_House',cmap='Blues',vmin=2,vmax=5,edgecolor='black')
+ax.set_axis_off()
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(2,5.1))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/HousePowerMap_AK.png',dpi=500)
+fig,ax = plt.subplots(1,figsize=(8,8))
+districtShapes.loc[districtShapes.Abbreviation == 'HI'].plot(ax=ax,\
+column='Power_House',cmap='Blues',vmin=2,vmax=5,edgecolor='black')
+ax.set_axis_off()
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(2,5.1))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/HousePowerMap_HI.png',dpi=500)
+
+fig,ax = plt.subplots(1,figsize=(18,10))
+districtShapes.loc[~districtShapes.Abbreviation.isin(['AK','HI'])].plot(ax=ax,\
+column='Power_Senate',cmap='Blues',vmin=0,vmax=5,edgecolor='black')
+ax.set_axis_off()
+ax.set_title('Representative Power in the Senate\n115th Congress',fontsize=28,fontweight='bold')
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(0,5.1))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/SenatePowerMap.png',dpi=500)
+fig,ax = plt.subplots(1,figsize=(8,8))
+districtShapes.loc[districtShapes.Abbreviation == 'AK'].plot(ax=ax,\
+column='Power_Senate',cmap='Blues',vmin=0,vmax=5,edgecolor='black')
+ax.set_axis_off()
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(0,5.1))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/SenatePowerMap_AK.png',dpi=500)
+fig,ax = plt.subplots(1,figsize=(8,8))
+districtShapes.loc[districtShapes.Abbreviation == 'HI'].plot(ax=ax,\
+column='Power_Senate',cmap='Blues',vmin=0,vmax=5,edgecolor='black')
+ax.set_axis_off()
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(0,5.1))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/SenatePowerMap_HI.png',dpi=500)
+
+fig,ax = plt.subplots(1,figsize=(18,10))
+districtShapes.loc[~districtShapes.Abbreviation.isin(['AK','HI'])].plot(ax=ax,\
+column='Power_Total',cmap='Blues',vmin=5,vmax=30,edgecolor='black')
+ax.set_axis_off()
+ax.set_title('Total Representative Power\n115th Congress',fontsize=28,fontweight='bold')
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(5,30.1,5))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/TotalPowerMap.png',dpi=500)
+fig,ax = plt.subplots(1,figsize=(8,8))
+districtShapes.loc[districtShapes.Abbreviation == 'AK'].plot(ax=ax,\
+column='Power_Total',cmap='Blues',vmin=5,vmax=30,edgecolor='black')
+ax.set_axis_off()
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(5,30.1,5))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/TotalPowerMap_AK.png',dpi=500)
+fig,ax = plt.subplots(1,figsize=(8,8))
+districtShapes.loc[districtShapes.Abbreviation == 'HI'].plot(ax=ax,\
+column='Power_Total',cmap='Blues',vmin=5,vmax=30,edgecolor='black')
+ax.set_axis_off()
+cbar = plt.colorbar(ax.collections[0],ticks=np.arange(5,30.1,5))
+cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
+plt.savefig('ElectionResults/TotalPowerMap_HI.png',dpi=500)
 
 
 
