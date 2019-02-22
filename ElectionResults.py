@@ -83,8 +83,7 @@ for year in range(2000,2017,2):
                 results_S.loc[np.all([results_S['STATE ABBREVIATION'] == state,results_S.D.str.contains('S'),\
                 results_S['GENERAL VOTES '] == stateVals['GENERAL VOTES '].max()],axis=0),'GE WINNER INDICATOR'] = 'W'
         del stateVals
-    del state
-    del candidate
+    del state, candidate
     
     results_S['GE WINNER INDICATOR'] = results_S['GE WINNER INDICATOR'].astype(str)
     results_S.loc[results_S['GE WINNER INDICATOR'] == 'W (Runoff)','GE WINNER INDICATOR'] = 'W'
@@ -306,8 +305,7 @@ for year in range(2000,2017,2):
 #    del actual_S
 #    del actual_H
     
-    del results_S
-    del results_H
+    del results_S, results_H
 del year
 
 byDistrict.District = byDistrict.District.astype(float)
@@ -430,17 +428,11 @@ for state in byState.State.unique():
         age.loc[(age['STATE ABBREVIATION'] == state) & (age['Age'] == demo),'Total voted'].tolist()[0]/\
         age.loc[(age['STATE ABBREVIATION'] == state) & (age['Age'] == 'Total'),'Total voted'].tolist()[0]
     del demo
-del state
-del stateAbbrevs
-del demographics
-del age
-del presResults
+del state, demographics, age, presResults#, stateAbbrevs
 
 byState = byState.sort_values(by=['State','Year'])
 byState[['State','Year','PARTY','Power_House','Power_Senate','Power_Total']]\
 .to_csv('ElectionResults/OverallResults_ByYearAndState.csv',index=False)
-
-""" SCATTER PLOT WITH POWER BY STATE!!! COLOR CODE BY TRUMP/CLINTON!!! """
 
 byUrbanRural = byDistrict[['Cluster','Year','District','Votes_House_Total']]\
 .groupby(by=['Cluster','Year']).agg({'District':'size','Votes_House_Total':'sum'}).reset_index()
@@ -526,6 +518,7 @@ plt.title('Senate Results',fontsize=15,fontweight='bold')
 plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
 plt.tight_layout()
 plt.savefig('ElectionResults/SenateResultsByYear_Overall.' + fileformat)
+plt.close()
 
 plt.figure(figsize=(8,5))
 plt.plot(range(2000,2017,2),100*byState.groupby('Year').Votes_Senate_R_Cumulative.sum()/\
@@ -554,6 +547,7 @@ plt.title('Senate Results',fontsize=15,fontweight='bold')
 plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
 plt.tight_layout()
 plt.savefig('ElectionResults/SenateResultsByYear_Cumulative.' + fileformat)
+plt.close()
 
 plt.figure(figsize=(8,5))
 plt.plot(range(2000,2017,2),100*byState.groupby('Year').Votes_House_R.sum()/(byState.groupby('Year').Votes_House_R.sum() + \
@@ -574,6 +568,7 @@ plt.title('House Results',fontsize=15,fontweight='bold')
 plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
 plt.tight_layout()
 plt.savefig('ElectionResults/HouseResultsByYear_Overall.' + fileformat)
+plt.close()
 
 statesOfInterest = byState.loc[byState['Wins_House_R'] + byState['Wins_House_D'] + \
 byState['Wins_House_O'] >= 10].groupby('State').Err_House.sum().sort_values(ascending=False)
@@ -594,6 +589,7 @@ for state in statesOfInterest[:5].index:
     plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
     plt.tight_layout()
     plt.savefig('ElectionResults/HouseResultsByYear_' + state + '.' + fileformat)
+    plt.close()
 del state
 
 legendVals = ['Rural','Suburban','Urban']
@@ -612,6 +608,7 @@ plt.title('House of Representatives',fontsize=15,fontweight='bold')
 plt.legend(legendVals)
 plt.tight_layout()
 plt.savefig('ElectionResults/RepresentativePower_House_ByCluster.' + fileformat)
+plt.close()
 
 plt.figure(figsize=(8,5))
 for cluster in legendVals:
@@ -628,6 +625,7 @@ plt.title('Senate',fontsize=15,fontweight='bold')
 plt.legend(legendVals)
 plt.tight_layout()
 plt.savefig('ElectionResults/RepresentativePower_Senate_ByCluster.' + fileformat)
+plt.close()
 
 plt.figure(figsize=(8,5))
 for cluster in legendVals:
@@ -644,6 +642,7 @@ plt.title('Total',fontsize=15,fontweight='bold')
 plt.legend(legendVals)
 plt.tight_layout()
 plt.savefig('ElectionResults/RepresentativePower_Total_ByCluster.' + fileformat)
+plt.close()
 del legendVals
 
 plt.figure(figsize=(8,5))
@@ -659,6 +658,7 @@ plt.title('House of Representatives',fontsize=15,fontweight='bold')
 plt.legend(['Republican','Democrat'])
 plt.tight_layout()
 plt.savefig('ElectionResults/RepresentativePower_House_ByParty.' + fileformat)
+plt.close()
 
 plt.figure(figsize=(8,5))
 plt.plot(byRedBlue.loc[byRedBlue.PARTY == 'REP','Year'],byRedBlue.loc[byRedBlue.PARTY == 'REP','Power_Senate'],'r',linewidth=2)
@@ -673,6 +673,7 @@ plt.title('Senate',fontsize=15,fontweight='bold')
 plt.legend(['Republican','Democrat'])
 plt.tight_layout()
 plt.savefig('ElectionResults/RepresentativePower_Senate_ByParty.' + fileformat)
+plt.close()
 
 plt.figure(figsize=(8,5))
 plt.plot(byRedBlue.loc[byRedBlue.PARTY == 'REP','Year'],byRedBlue.loc[byRedBlue.PARTY == 'REP','Power_Total'],'r',linewidth=2)
@@ -687,6 +688,7 @@ plt.title('Total',fontsize=15,fontweight='bold')
 plt.legend(['Republican','Democrat'])
 plt.tight_layout()
 plt.savefig('ElectionResults/RepresentativePower_Total_ByParty.' + fileformat)
+plt.close()
 
 """ 2017 Skinny Repeal of Obamacare """
 
@@ -702,8 +704,7 @@ else:
         acaVotes = acaVotes.append({'Name':vote.split('unaccented-name="')[1].split('"')[0],\
         'Party':vote.split('party="')[1].split('"')[0],'State':vote.split('state="')[1].split('"')[0],\
         'Vote':vote.split('<vote>')[1].split('</vote>')[0]},ignore_index=True)
-    del vote
-    del votes
+    del vote, votes
     acaVotes.to_csv('ElectionResults/AmericanHealthCareAct_VoteTally.csv',index=False)
 
 acaHouseVotes = {'Aye':0,'No':0,'Not Voting':0}
@@ -742,8 +743,7 @@ else:
         taxVotes = taxVotes.append({'Name':vote.split('unaccented-name="')[1].split('"')[0],\
         'Party':vote.split('party="')[1].split('"')[0],'State':vote.split('state="')[1].split('"')[0],\
         'Vote':vote.split('<vote>')[1].split('</vote>')[0]},ignore_index=True)
-    del vote
-    del votes
+    del vote, votes
     taxVotes.to_csv('ElectionResults/TaxCutsAndJobsAct_VoteTally.csv',index=False)
 
 taxHouseVotes = {'Yea':0,'Nay':0,'Not Voting':0}
@@ -808,21 +808,24 @@ ax.set_axis_off()
 ax.set_title('Representative Power in the House\n115th Congress',fontsize=28,fontweight='bold')
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(2,5.1))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/HousePowerMap.png',dpi=500)
+plt.savefig('ElectionResults/HousePowerMap.' + fileformat,dpi=500)
+plt.close()
 fig,ax = plt.subplots(1,figsize=(8,8))
 districtShapes.loc[districtShapes.Abbreviation == 'AK'].plot(ax=ax,\
 column='Power_House',cmap='Blues',vmin=2,vmax=5,edgecolor='black')
 ax.set_axis_off()
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(2,5.1))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/HousePowerMap_AK.png',dpi=500)
+plt.savefig('ElectionResults/HousePowerMap_AK.' + fileformat,dpi=500)
+plt.close()
 fig,ax = plt.subplots(1,figsize=(8,8))
 districtShapes.loc[districtShapes.Abbreviation == 'HI'].plot(ax=ax,\
 column='Power_House',cmap='Blues',vmin=2,vmax=5,edgecolor='black')
 ax.set_axis_off()
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(2,5.1))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/HousePowerMap_HI.png',dpi=500)
+plt.savefig('ElectionResults/HousePowerMap_HI.' + fileformat,dpi=500)
+plt.close()
 
 fig,ax = plt.subplots(1,figsize=(18,10))
 districtShapes.loc[~districtShapes.Abbreviation.isin(['AK','HI'])].plot(ax=ax,\
@@ -831,21 +834,24 @@ ax.set_axis_off()
 ax.set_title('Representative Power in the Senate\n115th Congress',fontsize=28,fontweight='bold')
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(0,5.1))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/SenatePowerMap.png',dpi=500)
+plt.savefig('ElectionResults/SenatePowerMap.' + fileformat,dpi=500)
+plt.close()
 fig,ax = plt.subplots(1,figsize=(8,8))
 districtShapes.loc[districtShapes.Abbreviation == 'AK'].plot(ax=ax,\
 column='Power_Senate',cmap='Blues',vmin=0,vmax=5,edgecolor='black')
 ax.set_axis_off()
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(0,5.1))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/SenatePowerMap_AK.png',dpi=500)
+plt.savefig('ElectionResults/SenatePowerMap_AK.' + fileformat,dpi=500)
+plt.close()
 fig,ax = plt.subplots(1,figsize=(8,8))
 districtShapes.loc[districtShapes.Abbreviation == 'HI'].plot(ax=ax,\
 column='Power_Senate',cmap='Blues',vmin=0,vmax=5,edgecolor='black')
 ax.set_axis_off()
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(0,5.1))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/SenatePowerMap_HI.png',dpi=500)
+plt.savefig('ElectionResults/SenatePowerMap_HI.' + fileformat,dpi=500)
+plt.close()
 
 fig,ax = plt.subplots(1,figsize=(18,10))
 districtShapes.loc[~districtShapes.Abbreviation.isin(['AK','HI'])].plot(ax=ax,\
@@ -854,21 +860,507 @@ ax.set_axis_off()
 ax.set_title('Total Representative Power\n115th Congress',fontsize=28,fontweight='bold')
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(5,30.1,5))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/TotalPowerMap.png',dpi=500)
+plt.savefig('ElectionResults/TotalPowerMap.' + fileformat,dpi=500)
+plt.close()
 fig,ax = plt.subplots(1,figsize=(8,8))
 districtShapes.loc[districtShapes.Abbreviation == 'AK'].plot(ax=ax,\
 column='Power_Total',cmap='Blues',vmin=5,vmax=30,edgecolor='black')
 ax.set_axis_off()
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(5,30.1,5))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/TotalPowerMap_AK.png',dpi=500)
+plt.savefig('ElectionResults/TotalPowerMap_AK.' + fileformat,dpi=500)
+plt.close()
 fig,ax = plt.subplots(1,figsize=(8,8))
 districtShapes.loc[districtShapes.Abbreviation == 'HI'].plot(ax=ax,\
 column='Power_Total',cmap='Blues',vmin=5,vmax=30,edgecolor='black')
 ax.set_axis_off()
 cbar = plt.colorbar(ax.collections[0],ticks=np.arange(5,30.1,5))
 cbar.set_label('\nRepresentative Power in $\mu$reps',fontsize=16,fontweight='bold')
-plt.savefig('ElectionResults/TotalPowerMap_HI.png',dpi=500)
+plt.savefig('ElectionResults/TotalPowerMap_HI.' + fileformat,dpi=500)
+plt.close()
 
+""" Alternate Scenario #1: No Districts or Individual Races """
+""" For states with more/less delegates when rounded, decrease/increase until it matches... """
 
+byState['Ideal_House_Total'] = 0
+byState['Ideal_Senate_Total'] = 0
+for year in range(2000,2017,2):
+    print(year)
+    for state in byState.State.unique():
+        factor = 1.0
+        inc = 0.1
+        while inc >= 0.0001:
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total'].tolist()[0] < \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_R']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_D']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_O']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total'] = \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O']
+                factor += inc
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total'].tolist()[0] > \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_R']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_D']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Wins_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_O']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total'] = \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O']
+                factor -= inc
+            inc /= 10
+        del factor, inc
+        factor = 1.0
+        inc = 0.1
+        while inc >= 0.0001:
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0] < 2:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*2*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*2*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*2*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'] = \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O']
+                factor += inc
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0] > 2:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*2*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*2*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*2*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'] = \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O']
+                factor -= inc
+            inc /= 10
+        del factor, inc
+    del state
+del year
+
+plt.figure(figsize=(8,5))
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_House_R.sum()/(byState.groupby('Year').Votes_House_R.sum() + \
+byState.groupby('Year').Votes_House_D.sum() + byState.groupby('Year').Votes_House_O.sum()),'r',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_House_R.sum()/(byState.groupby('Year').Ideal_House_R.sum() + \
+byState.groupby('Year').Ideal_House_D.sum() + byState.groupby('Year').Ideal_House_O.sum()),'r--',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_House_D.sum()/(byState.groupby('Year').Votes_House_R.sum() + \
+byState.groupby('Year').Votes_House_D.sum() + byState.groupby('Year').Votes_House_O.sum()),'b',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_House_D.sum()/(byState.groupby('Year').Ideal_House_R.sum() + \
+byState.groupby('Year').Ideal_House_D.sum() + byState.groupby('Year').Ideal_House_O.sum()),'b--',linewidth=2)
+plt.axis([1999.5,2016.5,30,70])
+plt.xticks(np.arange(2000,2017,2))
+plt.yticks(np.arange(30,71,10))
+plt.grid(True)
+plt.xlabel('Year',fontsize=18,fontweight='bold')
+plt.ylabel('Percentage',fontsize=18,fontweight='bold')
+plt.title('House Results, Party Vote',fontsize=15,fontweight='bold')
+plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
+plt.tight_layout()
+plt.savefig('ElectionResults/HouseResultsByYear_Alternate1.' + fileformat)
+plt.close()
+
+plt.figure(figsize=(8,5))
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_R_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'r',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_R.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'r--',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_D_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'b',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_D.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'b--',linewidth=2)
+plt.axis([2003.5,2016.5,30,70])
+plt.xticks(np.arange(2004,2017,2))
+plt.yticks(np.arange(30,71,10))
+plt.grid(True)
+plt.xlabel('Year',fontsize=18,fontweight='bold')
+plt.ylabel('Percentage',fontsize=18,fontweight='bold')
+plt.title('Senate Results, Party Vote',fontsize=15,fontweight='bold')
+plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
+plt.tight_layout()
+plt.savefig('ElectionResults/SenateResultsByYear_Alternate1.' + fileformat)
+plt.close()
+
+del byState['Ideal_House_Total'], byState['Ideal_House_R'], byState['Ideal_House_D'], \
+byState['Ideal_House_O'], byState['Ideal_Senate_Total'], byState['Ideal_Senate_R'], \
+byState['Ideal_Senate_D'], byState['Ideal_Senate_O']
+
+""" Alternate Scenario #2: No Districts or Individual Races, 50% more Representatives """
+""" For states with more/less delegates when rounded, decrease/increase until it matches... """
+
+censusPops = pd.read_csv('ElectionResults/CensusPopulations.csv')
+censusPops.Name = censusPops.Name.str.upper()
+for year in range(1960,2011,10):
+    censusPops[str(year)] = censusPops[str(year)].str.replace(',','').astype(int)
+del year
+censusPops = pd.merge(left=censusPops,right=stateAbbrevs,how='inner',left_on='Name',right_on='STATE')
+
+byState['Ideal_House_Total'] = 0
+byState['Ideal_House_R'] = 0
+byState['Ideal_House_D'] = 0
+byState['Ideal_House_O'] = 0
+byState['Ideal_Senate_Total'] = 0
+byState['Ideal_Senate_R'] = 0
+byState['Ideal_Senate_D'] = 0
+byState['Ideal_Senate_O'] = 0
+for year in range(2000,2017,2):
+    print(year)
+    censusYear = str(10*(year//10))
+    factor = 1.0
+    inc = 0.1
+    while inc >= 0.0001:
+        while byState.loc[byState.Year == year,'Ideal_House_Total'].sum() > 650:
+            for state in byState.State.unique():
+                byState.loc[(byState.Year == year) & (byState.State == state),'Ideal_House_Total'] = \
+                max(round(factor*650*censusPops.loc[censusPops['STATE ABBREVIATION'] == state,censusYear].tolist()[0]/censusPops[censusYear].sum()),1)
+            del state
+            factor -= inc
+        while byState.loc[byState.Year == year,'Ideal_House_Total'].sum() < 650:
+            for state in byState.State.unique():
+                byState.loc[(byState.Year == year) & (byState.State == state),'Ideal_House_Total'] = \
+                max(round(factor*650*censusPops.loc[censusPops['STATE ABBREVIATION'] == state,censusYear].tolist()[0]/censusPops[censusYear].sum()),1)
+            del state
+            factor += inc
+        inc /= 10
+    del factor, inc
+    for state in byState.State.unique():
+        factor = 1.0
+        inc = 0.1
+        while inc >= 0.0001:
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O'].tolist()[0] < \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_R']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_D']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_O']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                factor += inc
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O'].tolist()[0] > \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_R']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_D']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_House_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_O']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_House_Total'])
+                factor -= inc
+            inc /= 10
+        del factor, inc
+        factor = 1.0
+        inc = 0.1
+        while inc >= 0.0001:
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0] < 3:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*3*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*3*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*3*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'] = \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O']
+                factor += inc
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0] > 3:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*3*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*3*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*3*byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'] = \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] + \
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O']
+                factor -= inc
+            inc /= 10
+        del factor, inc
+    del state
+del year
+
+plt.figure(figsize=(8,5))
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_House_R.sum()/(byState.groupby('Year').Votes_House_R.sum() + \
+byState.groupby('Year').Votes_House_D.sum() + byState.groupby('Year').Votes_House_O.sum()),'r',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_House_R.sum()/(byState.groupby('Year').Ideal_House_R.sum() + \
+byState.groupby('Year').Ideal_House_D.sum() + byState.groupby('Year').Ideal_House_O.sum()),'r--',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_House_D.sum()/(byState.groupby('Year').Votes_House_R.sum() + \
+byState.groupby('Year').Votes_House_D.sum() + byState.groupby('Year').Votes_House_O.sum()),'b',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_House_D.sum()/(byState.groupby('Year').Ideal_House_R.sum() + \
+byState.groupby('Year').Ideal_House_D.sum() + byState.groupby('Year').Ideal_House_O.sum()),'b--',linewidth=2)
+plt.axis([1999.5,2016.5,30,70])
+plt.xticks(np.arange(2000,2017,2))
+plt.yticks(np.arange(30,71,10))
+plt.grid(True)
+plt.xlabel('Year',fontsize=18,fontweight='bold')
+plt.ylabel('Percentage',fontsize=18,fontweight='bold')
+plt.title('House Results, 650 Representatives, Party Vote',fontsize=15,fontweight='bold')
+plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
+plt.tight_layout()
+plt.savefig('ElectionResults/HouseResultsByYear_Alternate2.' + fileformat)
+plt.close()
+
+plt.figure(figsize=(8,5))
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_R_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'r',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_R.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'r--',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_D_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'b',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_D.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'b--',linewidth=2)
+plt.axis([2003.5,2016.5,30,70])
+plt.xticks(np.arange(2004,2017,2))
+plt.yticks(np.arange(30,71,10))
+plt.grid(True)
+plt.xlabel('Year',fontsize=18,fontweight='bold')
+plt.ylabel('Percentage',fontsize=18,fontweight='bold')
+plt.title('Senate Results, 150 Senators, Party Vote',fontsize=15,fontweight='bold')
+plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
+plt.tight_layout()
+plt.savefig('ElectionResults/SenateResultsByYear_Alternate2.' + fileformat)
+plt.close()
+
+del byState['Ideal_House_Total'], byState['Ideal_House_R'], byState['Ideal_House_D'], \
+byState['Ideal_House_O'], byState['Ideal_Senate_Total'], byState['Ideal_Senate_R'], \
+byState['Ideal_Senate_D'], byState['Ideal_Senate_O']
+
+""" Alternate Scenario #3: Senators Distributed Proportionately """
+""" If more than 100 senators when rounded, decrease/increase until it matches... """
+
+byState['Ideal_Senate_Total'] = 3
+byState['Ideal_Senate_R'] = 0
+byState['Ideal_Senate_D'] = 0
+byState['Ideal_Senate_O'] = 0
+for year in range(2000,2017,2):
+    print(year)
+    censusYear = str(10*(year//10))
+    factor = 1.0
+    inc = 0.1
+    while inc >= 0.0001:
+        while byState.loc[byState.Year == year,'Ideal_Senate_Total'].sum() > 100:
+            for state in byState.State.unique():
+                byState.loc[(byState.Year == year) & (byState.State == state),'Ideal_Senate_Total'] = \
+                max(round(factor*100*censusPops.loc[censusPops['STATE ABBREVIATION'] == state,censusYear].tolist()[0]/censusPops[censusYear].sum()),1)
+            del state
+            factor -= inc
+        while byState.loc[byState.Year == year,'Ideal_Senate_Total'].sum() < 100:
+            for state in byState.State.unique():
+                byState.loc[(byState.Year == year) & (byState.State == state),'Ideal_Senate_Total'] = \
+                max(round(factor*100*censusPops.loc[censusPops['STATE ABBREVIATION'] == state,censusYear].tolist()[0]/censusPops[censusYear].sum()),1)
+            del state
+            factor += inc
+        inc /= 10
+    del factor, inc
+    for state in byState.State.unique():
+        factor = 1.0
+        inc = 0.1
+        while inc >= 0.0001:
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'].tolist()[0] < \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                factor += inc
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'].tolist()[0] > \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                factor -= inc
+            inc /= 10
+        del factor, inc
+    del state
+del year
+
+plt.figure(figsize=(8,5))
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_R_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'r',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_R.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'r--',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_D_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'b',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_D.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'b--',linewidth=2)
+plt.axis([2003.5,2016.5,30,70])
+plt.xticks(np.arange(2004,2017,2))
+plt.yticks(np.arange(30,71,10))
+plt.grid(True)
+plt.xlabel('Year',fontsize=18,fontweight='bold')
+plt.ylabel('Percentage',fontsize=18,fontweight='bold')
+plt.title('Senate Results, Reapportionment, Party Vote',fontsize=15,fontweight='bold')
+plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
+plt.tight_layout()
+plt.savefig('ElectionResults/SenateResultsByYear_Alternate3.' + fileformat)
+plt.close()
+
+del byState['Ideal_Senate_Total'], byState['Ideal_Senate_R'], \
+byState['Ideal_Senate_D'], byState['Ideal_Senate_O']
+
+""" Alternate Scenario #4: Senators Distributed Proportionately, Twice the Senators """
+""" If more than 150 senators when rounded, decrease/increase until it matches... """
+
+byState['Ideal_Senate_Total'] = 4
+byState['Ideal_Senate_R'] = 0
+byState['Ideal_Senate_D'] = 0
+byState['Ideal_Senate_O'] = 0
+for year in range(2000,2017,2):
+    print(year)
+    censusYear = str(10*(year//10))
+    factor = 1.0
+    inc = 0.1
+    while inc >= 0.0001:
+        while byState.loc[byState.Year == year,'Ideal_Senate_Total'].sum() > 150:
+            for state in byState.State.unique():
+                byState.loc[(byState.Year == year) & (byState.State == state),'Ideal_Senate_Total'] = \
+                max(round(factor*150*censusPops.loc[censusPops['STATE ABBREVIATION'] == state,censusYear].tolist()[0]/censusPops[censusYear].sum()),1)
+            del state
+            factor -= inc
+        while byState.loc[byState.Year == year,'Ideal_Senate_Total'].sum() < 150:
+            for state in byState.State.unique():
+                byState.loc[(byState.Year == year) & (byState.State == state),'Ideal_Senate_Total'] = \
+                max(round(factor*150*censusPops.loc[censusPops['STATE ABBREVIATION'] == state,censusYear].tolist()[0]/censusPops[censusYear].sum()),1)
+            del state
+            factor += inc
+        inc /= 10
+    del factor, inc
+    for state in byState.State.unique():
+        factor = 1.0
+        inc = 0.1
+        while inc >= 0.0001:
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'].tolist()[0] < \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                factor += inc
+            while byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'].tolist()[0] + \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'].tolist()[0] > \
+            byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total'].tolist()[0]:
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_R'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_R_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_D'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_D_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_O'] = \
+                round(factor*byState.loc[(byState.State == state) & (byState.Year == year),'Ideal_Senate_Total']*\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_O_Cumulative']/\
+                byState.loc[(byState.State == state) & (byState.Year == year),'Votes_Senate_Total_Cumulative'])
+                factor -= inc
+            inc /= 10
+        del factor, inc
+    del state
+del year
+
+plt.figure(figsize=(8,5))
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_R_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'r',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_R.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'r--',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Votes_Senate_D_Cumulative.sum()/(byState.groupby('Year').Votes_Senate_R_Cumulative.sum() + \
+byState.groupby('Year').Votes_Senate_D_Cumulative.sum() + byState.groupby('Year').Votes_Senate_O_Cumulative.sum()),'b',linewidth=2)
+plt.plot(np.arange(2000,2017,2),100*byState.groupby('Year').Ideal_Senate_D.sum()/(byState.groupby('Year').Ideal_Senate_R.sum() + \
+byState.groupby('Year').Ideal_Senate_D.sum() + byState.groupby('Year').Ideal_Senate_O.sum()),'b--',linewidth=2)
+plt.axis([2003.5,2016.5,30,70])
+plt.xticks(np.arange(2004,2017,2))
+plt.yticks(np.arange(30,71,10))
+plt.grid(True)
+plt.xlabel('Year',fontsize=18,fontweight='bold')
+plt.ylabel('Percentage',fontsize=18,fontweight='bold')
+plt.title('Senate Results, Reapportionment\n150 Senators, Party Vote',fontsize=15,fontweight='bold')
+plt.legend(['Vote % (R)','Win % (R)','Vote % (D)','Win % (D)'])
+plt.tight_layout()
+plt.savefig('ElectionResults/SenateResultsByYear_Alternate4.' + fileformat)
+plt.close()
+
+del byState['Ideal_Senate_Total'], byState['Ideal_Senate_R'], \
+byState['Ideal_Senate_D'], byState['Ideal_Senate_O']
 
