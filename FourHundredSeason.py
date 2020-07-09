@@ -34,6 +34,18 @@ def logFactorial(value):
 nchoosek = [np.array([logFactorial(ab) - logFactorial(ab - hit) - \
 logFactorial(hit) for hit in range(ab + 1)]) for ab in range(1300)]
 
+def hitProb(ab,career):
+    global nchoosek
+    hits = np.arange(ab + 1)
+    while ab >= len(nchoosek):
+        nchoosek.append(np.array([logFactorial(len(nchoosek)) - \
+        logFactorial(len(nchoosek) - hit) - logFactorial(hit) \
+        for hit in range(len(nchoosek) + 1)]))
+    probs = nchoosek[ab] + hits*np.log(career) + (ab - hits)*np.log(1 - career)
+    probs = np.exp(probs - np.max(probs))
+    probs = probs/sum(probs)
+    return probs
+
 def fourHundredProb(career,games,abPerGame):
     global nchoosek
     abProbs = abPerGame
@@ -41,14 +53,8 @@ def fourHundredProb(career,games,abPerGame):
         abProbs = np.convolve(abProbs,abPerGame)
     fourHundred = 0.0
     for ab in range(1,len(abProbs)):
-        hits = np.arange(ab + 1)
-        avgs = hits/ab
-        if ab == len(nchoosek):
-            nchoosek.append(np.array([logFactorial(ab) - logFactorial(ab - hit) - \
-            logFactorial(hit) for hit in range(ab + 1)]))
-        probs = nchoosek[ab] + hits*np.log(career) + (ab - hits)*np.log(1 - career)
-        probs = np.exp(probs - np.max(probs))
-        probs = probs/sum(probs)
+        avgs = np.arange(ab + 1)/ab
+        probs = hitProb(ab,career)
         fourHundred += sum(probs[avgs >= 0.4])*abProbs[ab]
     return fourHundred
 
@@ -123,12 +129,18 @@ def main():
     parser.add_option('--min',action="store",dest="min_games",help="minimum number of games started for a player to be included")
     parser.add_option('--ab',action="store",dest="ab",help="path of at bat statistics per player per game")
     parser.add_option('--avg',action="store",dest="avg",help="path of career batting average statistics")
+    parser.add_option('--excel',action="store_true",dest="excel",help="whether to save results in an excel spreadsheet")
+    parser.add_option('--graph',action="store_true",dest="graph",help="whether to graph results as interactive html files")
     options,args = parser.parse_args()
     options.games = [int(val) for val in options.games.split(',') if val.isnumeric()]
     if len(options.games) == 0:
         options.games = [60,162]
     options.season = int(options.season) if str(options.season).isnumeric() else 2019
     options.min_games = int(options.min_games) if str(options.min_games).isnumeric() else 81
+    if not options.excel and not options.graph:
+        print("Output type wasn't specified... Assuming both...")
+        options.excel = True
+        options.graph = True
     
     """ Downloading career batting average distribution """
     if os.path.exists(str(options.avg)):
@@ -138,7 +150,7 @@ def main():
     player_stats.name = player_stats.name.apply(unidecode.unidecode).str.replace('Kike Hernandez','Enrique Hernandez')
     player_stats = player_stats.loc[player_stats.season_starts > options.min_games]
     counts,careers = np.histogram(player_stats.batting_average,\
-    bins=np.arange(min(0.1,round(player_stats.batting_average.min(),3)),\
+    bins=np.arange(min(0.2,round(player_stats.batting_average.min(),3)),\
     max(0.4,player_stats.batting_average.max()) + 0.002,0.001) - 0.0005)
     careers = careers[:-1] + 0.0005
     
@@ -155,14 +167,19 @@ def main():
     
     """ Calculating probabilities of hitting .400 """
     by_avg = pd.DataFrame()
+    avg_hist = pd.DataFrame()
     by_player = pd.DataFrame()
-    anyPlayer = pd.DataFrame()
+    any_player = pd.DataFrame()
     for games in options.games:
         for career in careers:
             by_avg = by_avg.append({'Games':games,'Career':career,'Type':'Fixed AB',\
             'Probability of Hitting .400':fourHundredProb(career,games,[0.0,0.0,0.0,0.0,1.0])},ignore_index=True)
             by_avg = by_avg.append({'Games':games,'Career':career,'Type':'Random AB',\
             'Probability of Hitting .400':fourHundredProb(career,games,abPerGame)},ignore_index=True)
+            if str(int(1000*career))[-2:] in ['00','50']:
+                avg_hist = avg_hist.append(pd.DataFrame({'Games':games,\
+                'Career':career,'Season':np.arange(games*4 + 1)/(games*4),\
+                'Probability':hitProb(games*4,career)}),ignore_index=True)
         for ind in range(player_stats.shape[0]):
             name = player_stats.loc[ind,'name']
             career = player_stats.loc[ind,'batting_average']
@@ -170,7 +187,7 @@ def main():
             playerABs = playerABs/sum(playerABs)
             by_player = by_player.append({'Games':games,'Player':name,'Career':career,\
             'Probability of Hitting .400':fourHundredProb(career,games,playerABs)},ignore_index=True)
-        anyPlayer = anyPlayer.append({'# of Games':games,\
+        any_player = any_player.append({'# of Games':games,\
         'Anyone Hitting .400 (Fixed AB)':1 - ((1 - by_avg.loc[(by_avg.Type == 'Fixed AB') & \
         (by_avg.Games == games),'Probability of Hitting .400'])**counts).product(),\
         'Anyone Hitting .400 (Random AB)':1 - ((1 - by_avg.loc[(by_avg.Type == 'Random AB') & \
@@ -179,22 +196,33 @@ def main():
         'Probability of Hitting .400']).product()},ignore_index=True)
     
     """ Sorting and saving results to Excel spreadsheet """
-    writer = pd.ExcelWriter('FourHundredProbByCareerAvg.xlsx',engine='xlsxwriter')
-    writer = excelAutofit(anyPlayer.sort_values(by='# of Games',ascending=True),'Any Player',writer)
-    writer = excelAutofit(by_avg.sort_values(by=['Type','Games','Career'],ascending=True),'By Career Avg',writer)
-    writer = excelAutofit(by_player.sort_values(by=['Games','Probability of Hitting .400'],ascending=[True,False]),'By Player',writer)
-    writer.sheets['Any Player'].conditional_format('B2:D' + str(anyPlayer.shape[0] + 1),\
-    {'type':'3_color_scale','min_color':'#FF6347','mid_color':'#FFD700','max_color':'#3CB371'})
-    writer.save()
+    if options.excel:
+        writer = pd.ExcelWriter('FourHundredProbByCareerAvg.xlsx',engine='xlsxwriter')
+        writer = excelAutofit(any_player.sort_values(by='# of Games',ascending=True),'Any Player',writer)
+        writer = excelAutofit(by_avg.sort_values(by=['Type','Games','Career'],ascending=True),'By Career Avg',writer)
+        writer = excelAutofit(by_player.sort_values(by=['Games','Probability of Hitting .400'],ascending=[True,False]),'By Player',writer)
+        writer = excelAutofit(avg_hist.sort_values(by=['Games','Career','Season'],ascending=True),'Season Avg Prob',writer)
+        writer.sheets['Any Player'].conditional_format('B2:D' + str(any_player.shape[0] + 1),\
+        {'type':'3_color_scale','min_color':'#FF6347','mid_color':'#FFD700','max_color':'#3CB371'})
+        writer.save()
     
-    """ Plotting interactive html graph of results """
-    by_avg["Probability of Hitting .400"] *= 100
-    by_avg["Career"] *= 1000
-    by_avg = by_avg.rename(columns={"Career":"Career Batting Average",\
-    "Probability of Hitting .400":"Percent Probability of Hitting .400"})
-    fig = px.scatter(by_avg,x="Career Batting Average",y="Percent Probability of Hitting .400",\
-    color="Type",hover_name="Type",animation_frame='Games',range_x=[200,400],range_y=[0,50])
-    plot(fig,filename='FourHundredProbByCareerAvg.html')
+    """ Plotting interactive html graphs of results """
+    if options.graph:
+        by_avg["Probability of Hitting .400"] *= 100
+        by_avg["Career"] *= 1000
+        by_avg = by_avg.rename(columns={"Career":"Career Batting Average",\
+        "Probability of Hitting .400":"Percent Probability of Hitting .400"})
+        fig = px.scatter(by_avg,x="Career Batting Average",y="Percent Probability of Hitting .400",\
+        color="Type",hover_name="Type",animation_frame='Games',range_x=[200,400],range_y=[0,50])
+        plot(fig,filename='FourHundredProbByCareerAvg.html')
+        avg_hist['Probability'] *= 100
+        avg_hist['Career'] = '.' + (1000*avg_hist['Career']).astype(int).astype(str)
+        avg_hist['Season'] *= 1000
+        avg_hist = avg_hist.rename(columns={"Career":"Career Batting Average",\
+        "Season":"Season Batting Average","Probability":"Percent Probability"})
+        fig = px.scatter(avg_hist,x="Season Batting Average",y="Percent Probability",\
+        color='Career Batting Average',animation_frame='Games',range_x=[100,500],range_y=[0,10])
+        plot(fig,filename='SeasonAvgDistributions.html')
 
 if __name__ == "__main__":
     main()
