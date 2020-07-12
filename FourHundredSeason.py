@@ -214,6 +214,7 @@ def main():
         "Probability of Hitting .400":"Percent Probability of Hitting .400"})
         fig = px.scatter(by_avg,x="Career Batting Average",y="Percent Probability of Hitting .400",\
         color="Type",hover_name="Type",animation_frame='Games',range_x=[200,400],range_y=[0,50])
+        fig.update_layout(height=500,margin=dict(l=20, r=20, t=20, b=20))
         plot(fig,filename='FourHundredProbByCareerAvg.html')
         avg_hist['Probability'] *= 100
         avg_hist['Career'] = '.' + (1000*avg_hist['Career']).astype(int).astype(str)
@@ -222,6 +223,7 @@ def main():
         "Season":"Season Batting Average","Probability":"Percent Probability"})
         fig = px.scatter(avg_hist,x="Season Batting Average",y="Percent Probability",\
         color='Career Batting Average',animation_frame='Games',range_x=[100,500],range_y=[0,10])
+        fig.update_layout(height=400,margin=dict(l=20, r=20, t=30, b=40))
         plot(fig,filename='SeasonAvgDistributions.html')
 
 if __name__ == "__main__":
