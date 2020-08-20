@@ -9,17 +9,18 @@ Created on Tue Aug 18 15:45:40 2020
 import re
 import pandas as pd
 
-picks = {'Joel':['healthcare','hope','hopes','hoping','racism','racist','police','policing','defund'],\
-         'Ashley':['jobs','job','family','families','lewis','tweet','twitter'],\
+picks = {'Joel':['healthcare','hope','hopes','hoping','racism','racist','racial','police','policing','defund'],\
+         'Ashley':['jobs','job','family','families','lewis','good trouble','tweet','twitter'],\
          'Angela':['leader','leaders','leadership','working','billionaires','corporate','corporations'],\
          'Mike Kim':['soul','barack','obama','expert','experts','malarkey'],\
          'Jake':['progress','progressive','change','changes','changed','changing','community','communities','climate'],\
-         'Shannon':['pandemic','covid','mail','postal','obamacare','build back'],\
+         'Shannon':['pandemic','covid','mail','postal','obamacare','aca','affordable care','back better'],\
          'Priya':['economy','economies','economic','science','scientist','scientists','scientific','middle class','essential workers','first responders'],\
          'Naoko':['fighter','tough','unity','unite','unites','social security','recovery act']}
 
 scores = pd.DataFrame(columns=['Player','Night','Speaker','Word','Points'])
-for speech in ['Night1_BernieSanders.txt','Night1_MichelleObama.txt','Night2_JillBiden.txt']:
+for speech in ['Night1_BernieSanders.txt','Night1_MichelleObama.txt',\
+'Night2_JillBiden.txt','Night3_BarackObama.txt','Night3_KamalaHarris.txt']:
     tempData = open(speech,'r')
     words = tempData.read()
     tempData.close()
@@ -43,8 +44,7 @@ def excelAutofit(df,name,writer):
     for idx, col in enumerate(df):
         series = df[col]
         max_len = min(max((series.astype(str).map(len).max(),len(str(series.name)))) + 1,50) + 5
-        writer.sheets[name].set_column(idx,idx,max_len,f,{'hidden':col.split('_')[0] \
-        in ['arriba','starfusion','ericscript','squid'] or col == 'Explained score'})
+        writer.sheets[name].set_column(idx,idx,max_len,f)
     writer.sheets[name].autofilter('A1:' + (chr(64 + (df.shape[1] - 1)//26) + \
     chr(65 + (df.shape[1] - 1)%26)).replace('@','') + str(df.shape[0] + 1))
     return writer
