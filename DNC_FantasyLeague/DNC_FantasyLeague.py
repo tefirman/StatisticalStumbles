@@ -20,7 +20,7 @@ picks = {'Joel':['healthcare','hope','hopes','hoping','racism','racist','racial'
 
 scores = pd.DataFrame(columns=['Player','Night','Speaker','Word','Points'])
 for speech in ['Night1_BernieSanders.txt','Night1_MichelleObama.txt',\
-'Night2_JillBiden.txt','Night3_BarackObama.txt','Night3_KamalaHarris.txt']:
+'Night2_JillBiden.txt','Night3_BarackObama.txt','Night3_KamalaHarris.txt','Night4_JoeBiden.txt']:
     tempData = open(speech,'r')
     words = tempData.read()
     tempData.close()
